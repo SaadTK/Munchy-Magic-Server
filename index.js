@@ -26,27 +26,16 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+const recipeColletion = client.db('munchy-magic').collection('all-recipes')
 
+    app.post("/recipes", async (req, res) => {
+      const newRecipe = req.body;
+      console.log(newRecipe);
+    
+      const result = await recipeColletion.insertOne(newRecipe)
+      res.send(result);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

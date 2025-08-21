@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 
 const app = express();
 app.use(cors());
@@ -26,15 +26,42 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-const recipeColletion = client.db('munchy-magic').collection('all-recipes')
+    const recipeColletion = client.db("munchy-magic").collection("all-recipes");
+
+    //GET a single recipe detail
+    
+    app.get('recipe-details/:id' , async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await recipeColletion.findOne(query)
+      res.send(result)
+    })
+
+
+
+    //GET single recipe
+    app.get("/all-recipes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await recipeColletion.findOne(query);
+      res.send(result);
+    });
+
+    //GET all recipes from the db
+
+    app.get("/all-recipes", async (req, res) => {
+      const result = await recipeColletion.find().toArray();
+      res.send(result);
+    });
+
+    //POST a new recipe to the db
 
     app.post("/recipes", async (req, res) => {
       const newRecipe = req.body;
       console.log(newRecipe);
-    
-      const result = await recipeColletion.insertOne(newRecipe)
-      res.send(result);
 
+      const result = await recipeColletion.insertOne(newRecipe);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection

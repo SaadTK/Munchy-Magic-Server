@@ -28,6 +28,77 @@ async function run() {
 
     const recipeColletion = client.db("munchy-magic").collection("all-recipes");
 
+    //GET recipes by a user (My Recipes)
+    app.get("/my-recipes", async (req, res) => {
+      const { userEmail } = req.query;
+
+      if (!userEmail) {
+        return res.status(400).json({ error: "Missing userEmail query param" });
+      }
+
+      try {
+        const userRecipes = await recipeColletion.find({ userEmail }).toArray();
+        res.status(200).json(userRecipes);
+      } catch (error) {
+        console.error("Failed to fetch user recipes:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
+    //PATCH update recipes by a user (My Recipes)
+    app.patch("/all-recipes/:id", async (req, res) => {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid recipe ID" });
+      }
+
+      const updates = req.body;
+
+      try {
+        const result = await recipeColletion.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updates }
+        );
+
+        if (result.modifiedCount > 0) {
+          res.json({ message: "Recipe updated successfully" });
+        } else {
+          res
+            .status(404)
+            .json({ error: "Recipe not found or no changes made" });
+        }
+      } catch (error) {
+        console.error("Failed to update recipe:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
+    //DELETE a recipe by a user (My Recipes)
+
+    app.delete("/all-recipes/:id", async (req, res) => {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid recipe ID" });
+      }
+
+      try {
+        const result = await recipeColletion.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        if (result.deletedCount > 0) {
+          res.json({ message: "Recipe deleted successfully" });
+        } else {
+          res.status(404).json({ error: "Recipe not found" });
+        }
+      } catch (error) {
+        console.error("Failed to delete recipe:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
     //PATCH like a recipe
     app.patch("/all-recipes/:id/like", async (req, res) => {
       const recipeId = req.params.id;
@@ -98,8 +169,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-// MongoDB Code Ends
 
 const port = process.env.PORT || 3002;
 

@@ -28,16 +28,39 @@ async function run() {
 
     const recipeColletion = client.db("munchy-magic").collection("all-recipes");
 
+    //PATCH like a recipe
+    app.patch("/all-recipes/:id/like", async (req, res) => {
+      const recipeId = req.params.id;
+      console.log("Attempting to like recipe ID:", recipeId);
+
+      if (!ObjectId.isValid(recipeId)) {
+        console.error("Invalid recipe ID format:", recipeId);
+        return res.status(400).json({ error: "Invalid recipe ID" });
+      }
+
+      try {
+        const result = await recipeColletion.updateOne(
+          { _id: new ObjectId(recipeId) },
+          { $inc: { likeCount: 1 } }
+        );
+        if (result.modifiedCount > 0) {
+          res.json({ message: "Like count updated" });
+        } else {
+          res.status(404).json({ error: "Recipe not found" });
+        }
+      } catch (error) {
+        console.error("Error while updating likes:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
     //GET a single recipe detail
-    
-    app.get('recipe-details/:id' , async (req, res) => {
+    app.get("recipe-details/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await recipeColletion.findOne(query)
-      res.send(result)
-    })
-
-
+      const query = { _id: new ObjectId(id) };
+      const result = await recipeColletion.findOne(query);
+      res.send(result);
+    });
 
     //GET single recipe
     app.get("/all-recipes/:id", async (req, res) => {

@@ -28,6 +28,20 @@ async function run() {
 
     const recipeColletion = client.db("munchy-magic").collection("all-recipes");
 
+    //GET all recipe and the filtering is in backend
+      app.get("/recipes-by-cuisine", async (req, res) => {
+      const { cuisine } = req.query;
+      const query = cuisine && cuisine !== "All" ? { cuisine: cuisine } : {};
+
+      try {
+        const recipes = await recipeColletion.find(query).toArray();
+        res.send(recipes);
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+        res.status(500).send({ error: "Failed to fetch recipes" });
+      }
+    });
+
     //GET recipes by a user (My Recipes)
     app.get("/my-recipes", async (req, res) => {
       const { userEmail } = req.query;

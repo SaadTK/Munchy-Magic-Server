@@ -28,8 +28,24 @@ async function run() {
 
     const recipeColletion = client.db("munchy-magic").collection("all-recipes");
 
+    // GET Top Recipes (by likes)
+    app.get("/top-recipes", async (req, res) => {
+      try {
+        const topRecipes = await recipeColletion
+          .find()
+          .sort({ likeCount: -1 }) // descending order
+          .limit(6)
+          .toArray();
+
+        res.send(topRecipes);
+      } catch (error) {
+        console.error("Failed to fetch top recipes:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
     //GET all recipe and the filtering is in backend
-      app.get("/recipes-by-cuisine", async (req, res) => {
+    app.get("/recipes-by-cuisine", async (req, res) => {
       const { cuisine } = req.query;
       const query = cuisine && cuisine !== "All" ? { cuisine: cuisine } : {};
 

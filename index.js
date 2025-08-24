@@ -207,6 +207,7 @@ app.get("/", async (req, res) => {
   res.send("Hello World");
 });
 
-app.listen(port, () => {
-  console.log(`It's running on port: ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`It's running on port: ${port}`);
+// });
+export default app;

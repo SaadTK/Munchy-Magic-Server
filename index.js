@@ -157,7 +157,7 @@ async function run() {
     });
 
     //GET a single recipe detail
-    app.get("recipe-details/:id", async (req, res) => {
+    app.get("/recipe-details/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await recipeColletion.findOne(query);
